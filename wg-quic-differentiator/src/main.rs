@@ -160,7 +160,7 @@ async fn forward_udp(
 
 fn determine_packet_type(buf: &[u8], _source_addr: &SocketAddr) -> PacketType {
     // Simple heuristic: Wireguard packets start with 0x00 to 0x04 followed by 3 bytes of 0x00
-    if buf.len() >= 4 && buf[0] <= 0x04 && buf[1] == 0x00 && buf[2] == 0x00 && buf[3] == 0x00 {
+    if buf.len() >= 4 && buf[0] <= 0x04 && buf[0] > 0 && buf[1] == 0x00 && buf[2] == 0x00 && buf[3] == 0x00 {
         PacketType::Wireguard
     } else {
         PacketType::Quic
