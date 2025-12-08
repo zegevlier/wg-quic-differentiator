@@ -1,0 +1,2 @@
+{"qlog_version":"0.3","qlog_format":"JSON-SEQ","title":"h3i","description":"h3i","trace":{"vantage_point":{"type":"client"},"title":"h3i","description":"h3i","configuration":{"time_offset":0.0}}}
+{"time":0.050499998,"name":"http:frame_created","data":{"stream_id":0,"frame":{"frame_type":"headers","headers":[{"name":":method","value":"GET"},{"name":":authority","value":"example.org"},{"name":":path","value":"/"},{"name":":scheme","value":"https"}]}},"fin_stream":true}
