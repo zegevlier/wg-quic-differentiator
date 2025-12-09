@@ -27,7 +27,7 @@ docker compose up -d
 First, install [h3i](https://crates.io/crates/h3i) (`cargo install h3i`).
 
 ```bash
-h3i 127.0.0.1:8080 --no-verify --qlog-input .\example_qlog.sqlog
+h3i 127.0.0.1:8080 --no-verify --qlog-input example_qlog.sqlog
 ```
 
 ### Test WireGuard
