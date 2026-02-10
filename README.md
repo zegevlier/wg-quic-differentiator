@@ -11,7 +11,7 @@ docker compose build
 ## Running
 
 ```bash
-docker compose up -d
+docker compose --profile diff --profile basic-server up -d
 ```
 
 ## Services

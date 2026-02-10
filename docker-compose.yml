@@ -1,5 +1,7 @@
 services:
   wg-quic-differentiator:
+    profiles:
+      - diff
     build:
       context: ./wg-quic-differentiator
       dockerfile: Dockerfile
@@ -36,6 +38,8 @@ services:
     entrypoint: ["/bin/bash", "/entrypoint.sh"]
 
   http3-server:
+    profiles:
+      - basic-server
     build:
       context: ./http3-server
       dockerfile: Dockerfile
@@ -43,4 +47,18 @@ services:
     ports:
       - "8443:8443/udp"
     restart: unless-stopped
+
+  nginx-server:
+    profiles:
+      - nginx-server
+    image: macbre/nginx-http3:latest
+    container_name: nginx-server
+    ports:
+      - "8443:443/tcp"
+      - "8443:443/udp"
+    restart: unless-stopped
+    volumes:
+      - ./nginx-server/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx-server/ssl:/etc/nginx/ssl:ro
+    command: sh -c "dd if=/dev/urandom of=/tmp/100mb.bin bs=1M count=10000 && nginx -g 'daemon off;'"
 
