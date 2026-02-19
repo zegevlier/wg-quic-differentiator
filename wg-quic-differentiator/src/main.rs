@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::env;
 use std::io;
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -11,11 +12,6 @@ enum PacketType {
     Quic,
 }
 
-const SERVER_ADDR: &str = "0.0.0.0:8080";
-// const WIREGUARD_SERVER_ADDR: &str = "wireguard:51820";
-// const QUIC_SERVER_ADDR: &str = "http3-server:8443";
-const WIREGUARD_SERVER_ADDR: &str = "localhost:51820";
-const QUIC_SERVER_ADDR: &str = "localhost:8443";
 const CONNECTION_TIMEOUT_SECS: u64 = 30;
 
 const BUFFER_SIZE: usize = 65536;
@@ -25,8 +21,13 @@ type ConnectionMap = Arc<Mutex<HashMap<(SocketAddr, PacketType), mpsc::Sender<Ve
 #[tokio::main]
 async fn main() -> io::Result<()> {
     env_logger::init();
-    let client_sock = Arc::new(UdpSocket::bind(SERVER_ADDR).await?);
-    log::info!("Listening on {SERVER_ADDR}...");
+
+    let listen_addr = env::var("PROXY_LISTEN_ADDR").unwrap_or_else(|_| "0.0.0.0:8080".to_string());
+    let wireguard_server_addr = env::var("PROXY_WG_BACKEND").unwrap_or_else(|_| "localhost:51820".to_string());
+    let quic_server_addr = env::var("PROXY_QUIC_BACKEND").unwrap_or_else(|_| "localhost:8443".to_string());
+
+    let client_sock = Arc::new(UdpSocket::bind(&listen_addr).await?);
+    log::info!("Listening on {}...", listen_addr);
 
     // Map to maintain persistent forwarding sockets per client
     let connections: ConnectionMap = Arc::new(Mutex::new(HashMap::new()));
@@ -44,8 +45,8 @@ async fn main() -> io::Result<()> {
         let packet_type = determine_packet_type(&packet_data, &addr);
 
         let forward_address = match packet_type {
-            PacketType::Wireguard => WIREGUARD_SERVER_ADDR,
-            PacketType::Quic => QUIC_SERVER_ADDR,
+            PacketType::Wireguard => wireguard_server_addr.clone(),
+            PacketType::Quic => quic_server_addr.clone(),
         };
 
         let sender = {
